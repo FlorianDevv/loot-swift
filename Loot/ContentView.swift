@@ -25,24 +25,7 @@ struct ContentView: View {
                 }, label: {
                     Text("Ajouter")
                 })
-                ForEach(inventory.loot) { item in
-                    HStack {
-                        Circle()
-                            .frame(width: 10, height: 10)
-                            .foregroundColor(item.rarity.color)
-                        
-                        Text(item.name)
-                        Text("Quantité: \(item.quantity)")
-                        
-                        Spacer()
-                        Text(item.type.rawValue)
-                        
-                        
-                    }
-                        
-                        
-                    
-                }
+                ExtractedView()
             }
             .sheet(isPresented: $showAddItemView, content: {
                 AddItemView().environmentObject(inventory)
@@ -66,3 +49,5 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
+
+
