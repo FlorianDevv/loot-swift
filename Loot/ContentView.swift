@@ -1,6 +1,7 @@
 import SwiftUI
 
-class Inventory: ObservableObject {
+
+public class Inventory: ObservableObject {
     @Published var loot: [LootItem] = [
         LootItem(quantity: 1, name: "Bottes de célérité", type: .boot, rarity: .rare, attackStrength: 0, game: availableGames.first(where: { $0.name == "League of Legends" }) ?? Game.emptyGame),
         LootItem(quantity: 1, name: "Lame de Doran", type: .dagger, rarity: .common, attackStrength: 20, game: availableGames.first(where: { $0.name == "League of Legends" }) ?? Game.emptyGame),
@@ -10,44 +11,47 @@ class Inventory: ObservableObject {
     func addItem(item: LootItem) {
         loot.append(item)
     }
-}
-
-struct ContentView: View {
-    @StateObject var inventory = Inventory()
-    @State var showAddItemView = false
-
-    var body: some View {
-        NavigationView {
-            List {
-                Button(action: {
-                    let newItem = LootItem(quantity: 1, name: "Magie de feu", type: .boot, rarity: .common, attackStrength: 0, game: availableGames.first(where: { $0.name == "League of Legends" }) ?? Game.emptyGame)
-                    inventory.addItem(item: newItem)
-                }, label: {
-                    Text("Ajouter")
-                })
-                ExtractedView()
-            }
-            .sheet(isPresented: $showAddItemView, content: {
-                AddItemView().environmentObject(inventory)
-            })
-            .navigationBarTitle("👝 Inventaire")
-            .toolbar(content: {
-                ToolbarItem(placement: ToolbarItemPlacement.automatic) {
-                    Button(action: {
-                        showAddItemView.toggle()
-                    }, label: {
-                        Image(systemName: "plus.circle.fill")
-                    })
-                }
-            })
+    func updateItem(item: LootItem) {
+        if let index = loot.firstIndex(where: { $0.id == item.id }) {
+            loot[index] = item
         }
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
+enum LooterFeature {
+    case loot
+    case wishList
+    case profile
 }
+
+
+struct ContentView: View {
+    @ObservedObject var inventory = Inventory()
+    @State var showAddItemView = false
+    var isOnboardingDone: Bool = false
+    @State private var selectedFeature: LooterFeature = .loot
+    
+    var body: some View {
+        TabView(selection: $selectedFeature) {
+                    LootView()
+                        .tabItem {
+                            Label("Loot", systemImage: "bag.fill")
+                        }
+                        .tag(LooterFeature.loot)
+                    WishListView()
+                        .tabItem {
+                            Label("Wishlist", systemImage: "heart.fill")
+                        }
+                        .tag(LooterFeature.wishList)
+                    ProfileView()
+                        .tabItem {
+                            Label("Profil", systemImage: "person.fill")
+                        }
+                        .tag(LooterFeature.profile)
+                }
+    }
+    
+}
+
 
 

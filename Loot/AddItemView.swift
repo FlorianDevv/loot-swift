@@ -20,6 +20,9 @@ enum Rarity: String, CaseIterable {
     }
 }
 
+
+
+
 struct AddItemView: View {
     @EnvironmentObject var inventory: Inventory
     @State private var name = ""
@@ -30,7 +33,10 @@ struct AddItemView: View {
     @State private var attackStrength = 1
     @State private var isAttackItem = false
     @Environment(\.dismiss) private var dismiss
-
+    var itemToEdit: LootItem?
+   
+        
+    
     var body: some View {
         Form {
             Section {
@@ -74,16 +80,34 @@ Picker("Type", selection: $type){
 }
             
             Section {
-                Button("Ajouter") {
-                    let newItem = LootItem(quantity: 1, name: name, type: .unknown, rarity: rarity, attackStrength: 10, game: selectedGame)
-                    inventory.addItem(item: newItem)
-                    dismiss()
-                    
-                }
-            }
-        }
+                            Button(action: {
+    let newItem = LootItem(quantity: quantity, name: name, type: type, rarity: rarity, attackStrength: attackStrength, game: selectedGame)
+    if let itemToEdit = itemToEdit {
+        inventory.updateItem(item: newItem)
+    } else {
+        inventory.addItem(item: newItem)
     }
+    dismiss()
+}) {
+    Text(itemToEdit == nil ? "Ajouter" : "Modifier")
 }
+                        }
+                    }
+                    .onAppear {
+                        if let itemToEdit = itemToEdit {
+                            name = itemToEdit.name
+                            rarity = itemToEdit.rarity
+                            selectedGame = itemToEdit.game
+                            quantity = itemToEdit.quantity
+                            type = itemToEdit.type
+                            attackStrength = itemToEdit.attackStrength
+                            isAttackItem = attackStrength > 0
+                        }
+                    }
+        }
+        
+    }
+
 
 struct AddItemView_Previews: PreviewProvider {
     static var previews: some View {

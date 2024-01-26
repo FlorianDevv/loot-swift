@@ -13,10 +13,11 @@ struct VisualEffectView: UIViewRepresentable {
     func updateUIView(_ uiView: UIVisualEffectView, context: UIViewRepresentableContext<Self>) { uiView.effect = effect }
 }
 struct LootDetailView: View {
+    @StateObject var inventory = Inventory()
     @State private var isAnimating = false
     @State private var isImageTapped = false
     @State private var isUniqueAnimating = false
-
+    @State var showAddItemView = false
     let item: LootItem
     
     var body: some View {
@@ -121,14 +122,28 @@ struct LootDetailView: View {
                     
                         
                 }
+                .sheet(isPresented: $showAddItemView, content: {
+                    AddItemView().environmentObject(inventory)
+                })
                 .listStyle(InsetGroupedListStyle())
+                .toolbar{
+                    
+                               Button(action: {
+                                   showAddItemView.toggle() // L'action de notre bouton
+                               }, label: {
+                                   Image(systemName: "pencil")
+                                   Text("Editer")
+                                   
+                               })
+                           
+                }
+        
             }
-            
+    
         }
 
 
-struct LootDetailView_Previews: PreviewProvider {
-    static var previews: some View {
-        LootDetailView(item: LootItem(quantity: 1, name: "Item Name", type: .unknown, rarity: .legendary, attackStrength: 10, game: Game(name: "Game Name", genre: .rpg, coverName: String())))
-    }
+#Preview{
+    LootDetailView(item: LootItem(quantity: 1, name: "Item Name", type: .unknown, rarity: .legendary, attackStrength: 10, game: Game(name: "Game Name", genre: .rpg, coverName: String())))
 }
+
